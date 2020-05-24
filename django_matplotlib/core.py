@@ -26,7 +26,7 @@ import base64
 import matplotlib.pyplot as plt
 
 from django.conf import settings
-from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.template.engine import Engine
 
 import jinja2
@@ -54,8 +54,18 @@ DEFAULT_TEMPLATE_ENGINE = settings.TEMPLATES[0]["BACKEND"]
 #: Map the template engine name to a function that make "safe" to render
 #: the image into the final HTML.
 TEMPLATES_FORMATERS = {
-    "django.template.backends.django.DjangoTemplates":  format_html,
-    "jango.template.backends.jinja2.Jinja2": jinja2.Markup}
+    "django.template.backends.django.DjangoTemplates":  mark_safe,
+    "django.template.backends.jinja2.Jinja2": jinja2.Markup,
+    "str": str}
+
+
+#: Map the template engine name to a function that make "safe" to render
+#: the image into the final HTML.
+TEMPLATE_ALIAS = {
+    "django": "django.template.backends.django.DjangoTemplates",
+    "jinja2": "django.template.backends.jinja2.Jinja2",
+    "str": "str"
+}
 
 
 #: Default template engine for render the plots. By default uses the
@@ -63,6 +73,14 @@ TEMPLATES_FORMATERS = {
 #: be changed by ``settings.DJMPL_TEMPLATE_ENGINE``` variable.
 DJMPL_TEMPLATE_ENGINE: str = getattr(
     settings, "DJMPL_TEMPLATE_ENGINE", DEFAULT_TEMPLATE_ENGINE)
+
+
+# =============================================================================
+# EXCEPTIONS
+# =============================================================================
+
+class EngineNotSupported(ValueError):
+    """The engine is not suported for django-matplotlib"""
 
 
 # =============================================================================
@@ -92,28 +110,37 @@ class DjangoMatplotlibWrapper:
     axes = attr.ib()
     plot_format: str = attr.ib(
         validator=attr.validators.in_(AVAILABLE_FORMATS))
-    template_engine = attr.ib()
+    template_engine = attr.ib(
+        converter=lambda x: template_by_alias(x),
+        validator=attr.validators.in_(TEMPLATES_FORMATERS))
 
+    # PNG
     def get_img_png(self) -> str:
         buf = io.BytesIO()
         self.fig.savefig(buf, format='png')
         png = buf.getvalue()
         buf.close()
         png = base64.b64encode(png).decode("ascii")
-        return f"<img src='data:image/png;base64,{png}'>"
+        return (
+            "<div class='djmpl djmpl-png'>"
+            f"<img src='data:image/png;base64,{png}'"
+            "</div>")
 
+    # SVG
     def get_img_svg(self) -> str:
         buf = io.StringIO()
         self.fig.savefig(buf, format='svg')
         svg = buf.getvalue()
         buf.close()
-        return svg
+        return f"<div class='djmpl djmpl-svg'>{svg}</div>"
 
+    # MPLD3
     def get_img_mpld3(self) -> str:
-        return mpld3.fig_to_html(fig)
+        html = mpld3.fig_to_html(self.fig)
+        return f"<div class='djmpl djmpl-mpld3'>{html}</div>"
 
     def safe(self, img) -> object:
-        formater = TEMPLATES_FORMATERS.get(template_engine, str)
+        formater = TEMPLATES_FORMATERS[self.template_engine]
         return formater(img)
 
     def html_str(self) -> str:
@@ -135,6 +162,20 @@ class DjangoMatplotlibWrapper:
 # =============================================================================
 # FUNCTIONS
 # =============================================================================
+
+def template_by_alias(name_or_alias: str) -> str:
+    """Retrieve the proper name for a template though the alias.
+
+    If the name is not found the same name_or_alias is returned.
+
+    """
+    if name_or_alias in TEMPLATES_FORMATERS:
+        return name_or_alias
+    try:
+        return TEMPLATE_ALIAS[name_or_alias.lower()]
+    except KeyError as err:
+        raise EngineNotSupported from err
+
 
 def subplots(
     plot_format: str = DJMPL_FORMAT,
