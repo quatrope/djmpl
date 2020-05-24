@@ -18,16 +18,16 @@
 # IMPORTS
 # =============================================================================
 
-import pytest
-
 from django.utils.safestring import SafeString
-
-from pyquery import PyQuery as pq
-
-import jinja2
 
 import django_matplotlib as djmpl
 from django_matplotlib import core
+
+import jinja2
+
+from pyquery import PyQuery as pq
+
+import pytest
 
 
 # =============================================================================

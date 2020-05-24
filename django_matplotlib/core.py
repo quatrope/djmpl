@@ -22,19 +22,19 @@ __all__ = ["EngineNotSupported", "subplots"]
 # IMPORTS
 # =============================================================================
 
-import io
 import base64
+import io
 
-import matplotlib.pyplot as plt
+import attr
 
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
 import jinja2
 
-import mpld3
+import matplotlib.pyplot as plt
 
-import attr
+import mpld3
 
 
 # =============================================================================
