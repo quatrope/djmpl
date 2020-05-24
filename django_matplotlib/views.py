@@ -1,3 +1,31 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2020, Juan B Cabral & QuatroPe
+# License: BSD-3-Clause
+#   Full Text: https://github.com/quatrope/djmpl/blob/master/LICENSE
+
+
+# =============================================================================
+# DOCS
+# =============================================================================
+
+"""Generic views for django-matplotlib
+
+"""
+
+__all__ = ["MatplotlibViewMixin"]
+
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
+
+from django.views.generic.base import TemplateView
+
+from .core import subplots
+
+
 # =============================================================================
 # VIEWS
 # =============================================================================
@@ -63,4 +91,3 @@ class MatplotlibViewMixin:
 
 class MatplotlibView(MatplotlibViewMixin, TemplateView):
     pass
-

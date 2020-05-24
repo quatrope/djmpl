@@ -15,6 +15,8 @@ django templates.
 
 """
 
+__all__ = ["EngineNotSupported", "subplots"]
+
 
 # =============================================================================
 # IMPORTS
@@ -27,7 +29,6 @@ import matplotlib.pyplot as plt
 
 from django.conf import settings
 from django.utils.safestring import mark_safe
-from django.template.engine import Engine
 
 import jinja2
 
@@ -54,7 +55,7 @@ DEFAULT_TEMPLATE_ENGINE = settings.TEMPLATES[0]["BACKEND"]
 #: Map the template engine name to a function that make "safe" to render
 #: the image into the final HTML.
 TEMPLATES_FORMATERS = {
-    "django.template.backends.django.DjangoTemplates":  mark_safe,
+    "django.template.backends.django.DjangoTemplates": mark_safe,
     "django.template.backends.jinja2.Jinja2": jinja2.Markup,
     "str": str}
 
@@ -179,7 +180,7 @@ def template_by_alias(name_or_alias: str) -> str:
 
 def subplots(
     plot_format: str = DJMPL_FORMAT,
-    template_engine = DJMPL_TEMPLATE_ENGINE,
+    template_engine: str = DJMPL_TEMPLATE_ENGINE,
     *args, **kwargs
 ) -> DjangoMatplotlibWrapper:
     """This functions tries to mimic the behavior of

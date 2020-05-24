@@ -1,5 +1,34 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2020, Juan B Cabral & QuatroPe
+# License: BSD-3-Clause
+#   Full Text: https://github.com/quatrope/djmpl/blob/master/LICENSE
+
+
+# =============================================================================
+# DOCS
+# =============================================================================
+
+"""Models utilities to integrate matplolib plots into django models
+
+"""
+
+__all__ = ["MatplotlibManager"]
+
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
 
 from django.db import models
+
+from .core import subplots
+
+
+# =============================================================================
+# MANAGER
+# =============================================================================
 
 class MatplotlibManager(models.Manager):
 

@@ -125,7 +125,6 @@ def test_invalid_and_format(engine):
         djmpl.subplots(plot_format="%NOT-EXISTS%", template_engine=engine)
 
 
-
 @pytest.mark.parametrize("fmt", core.AVAILABLE_FORMATS)
 def test_invalid_engine(fmt):
     with pytest.raises(core.EngineNotSupported):
