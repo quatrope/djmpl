@@ -1,18 +1,33 @@
 
+# =============================================================================
+# BLACK
+# =============================================================================
+
 [tool.black]
 line-length = 79
-skip-string-normalization = true
 target-version = ["py37", "py38"]
 
 
-[tool.flake8]
-per-file-ignores = "test_prj/*:S101"
-ignore = "E402"
+# =============================================================================
+# FLAKE8
+# =============================================================================
+
+[tool.flakehell.plugins]
+pycodestyle = ["-E402"]
+pyflakes = ["+*"]
+flake8-bandit = ["+*"]
+flake8-black = ["+*"]
+flake8-bugbear = ["+*"]
+flake8-import-order-flake8-linter = ["+*"]
+
+# match by prefix
+[tool.flakehell.exceptions."test_prj/"]
+flake8-bandit = ["-S101"]
 
 
-[tool.pytest]
-DJANGO_SETTINGS_MODULE = "test_prj.settings"
-
+# =============================================================================
+# TOX
+# =============================================================================
 
 [tool.tox]
 legacy_tox_ini = """
@@ -26,8 +41,9 @@ deps =
     pytest
     pytest-mock
     pytest-django
+changedir = test_prj
 commands =
-    pytest --rootdir test_prj -v {posargs}
+    pytest --ds "test_prj.settings" -v {posargs}
 
 
 [testenv:style]
@@ -39,6 +55,7 @@ deps =
     flake8-bugbear
     flake8-bandit
     flake8-black
+    flakehell
 commands =
-    flake8 setup.py test_prj django_matplotlib {posargs}
+    flakehell lint setup.py test_prj django_matplotlib {posargs}
 """

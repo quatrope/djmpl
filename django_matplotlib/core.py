@@ -115,7 +115,7 @@ class DjangoMatplotlibWrapper:
     # PNG
     def get_img_png(self) -> str:
         buf = io.BytesIO()
-        self.fig.savefig(buf, format='png')
+        self.fig.savefig(buf, format="png")
         png = buf.getvalue()
         buf.close()
         png = base64.b64encode(png).decode("ascii")
@@ -128,7 +128,7 @@ class DjangoMatplotlibWrapper:
     # SVG
     def get_img_svg(self) -> str:
         buf = io.StringIO()
-        self.fig.savefig(buf, format='svg')
+        self.fig.savefig(buf, format="svg")
         svg = buf.getvalue()
         buf.close()
         return f"<div class='djmpl djmpl-svg'>{svg}</div>"

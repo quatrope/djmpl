@@ -67,7 +67,7 @@ def do_setup():
         version=VERSION,
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
-        long_description_content_type='text/markdown',
+        long_description_content_type="text/markdown",
         author="J.B. Cabral",
         author_email="jbcabral@unc.edu.ar",
         url="https://django-matplotlib.readthedocs.io/",
