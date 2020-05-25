@@ -5,18 +5,15 @@
 # License: BSD-3-Clause
 #   Full Text: https://github.com/quatrope/djmpl/blob/master/LICENSE
 
-
 # =============================================================================
 # DOCS
 # =============================================================================
-
 """Wrapper around the matplotlib functionalities to write plots into a
 django templates.
 
 """
 
 __all__ = ["EngineNotSupported", "subplots"]
-
 
 # =============================================================================
 # IMPORTS
@@ -36,7 +33,6 @@ import matplotlib.pyplot as plt
 
 import mpld3
 
-
 # =============================================================================
 # CONSTANTS
 # =============================================================================
@@ -47,38 +43,36 @@ AVAILABLE_FORMATS: list = ["mpld3", "svg", "png"]
 #: Default plot format. This can be changed with a ``DJMPL``` setting variable.
 DJMPL_FORMAT: str = getattr(settings, "DJMPL_FORMAT", AVAILABLE_FORMATS[0])
 
-
 #: The first template engine configured in ``settings.template```
 DEFAULT_TEMPLATE_ENGINE = settings.TEMPLATES[0]["BACKEND"]
-
 
 #: Map the template engine name to a function that make "safe" to render
 #: the image into the final HTML.
 TEMPLATES_FORMATERS = {
     "django.template.backends.django.DjangoTemplates": mark_safe,
     "django.template.backends.jinja2.Jinja2": jinja2.Markup,
-    "str": str}
-
+    "str": str,
+}
 
 #: Map the template engine name to a function that make "safe" to render
 #: the image into the final HTML.
 TEMPLATE_ALIAS = {
     "django": "django.template.backends.django.DjangoTemplates",
     "jinja2": "django.template.backends.jinja2.Jinja2",
-    "str": "str"
+    "str": "str",
 }
-
 
 #: Default template engine for render the plots. By default uses the
 #: same as the default entine in ``settings.TEMPLATES```, this can
 #: be changed by ``settings.DJMPL_TEMPLATE_ENGINE``` variable.
 DJMPL_TEMPLATE_ENGINE: str = getattr(
-    settings, "DJMPL_TEMPLATE_ENGINE", DEFAULT_TEMPLATE_ENGINE)
-
+    settings, "DJMPL_TEMPLATE_ENGINE", DEFAULT_TEMPLATE_ENGINE
+)
 
 # =============================================================================
 # EXCEPTIONS
 # =============================================================================
+
 
 class EngineNotSupported(ValueError):
     """The engine is not suported for django-matplotlib"""
@@ -87,6 +81,7 @@ class EngineNotSupported(ValueError):
 # =============================================================================
 # CLASSES BASE
 # =============================================================================
+
 
 @attr.s(frozen=True)
 class DjangoMatplotlibWrapper:
@@ -110,10 +105,12 @@ class DjangoMatplotlibWrapper:
     fig = attr.ib()
     axes = attr.ib()
     plot_format: str = attr.ib(
-        validator=attr.validators.in_(AVAILABLE_FORMATS))
+        validator=attr.validators.in_(AVAILABLE_FORMATS)
+    )
     template_engine = attr.ib(
         converter=lambda x: template_by_alias(x),
-        validator=attr.validators.in_(TEMPLATES_FORMATERS))
+        validator=attr.validators.in_(TEMPLATES_FORMATERS),
+    )
 
     # PNG
     def get_img_png(self) -> str:
@@ -125,7 +122,8 @@ class DjangoMatplotlibWrapper:
         return (
             "<div class='djmpl djmpl-png'>"
             f"<img src='data:image/png;base64,{png}'"
-            "</div>")
+            "</div>"
+        )
 
     # SVG
     def get_img_svg(self) -> str:
@@ -164,6 +162,7 @@ class DjangoMatplotlibWrapper:
 # FUNCTIONS
 # =============================================================================
 
+
 def template_by_alias(name_or_alias: str) -> str:
     """Retrieve the proper name for a template though the alias.
 
@@ -181,7 +180,8 @@ def template_by_alias(name_or_alias: str) -> str:
 def subplots(
     plot_format: str = DJMPL_FORMAT,
     template_engine: str = DJMPL_TEMPLATE_ENGINE,
-    *args, **kwargs
+    *args,
+    **kwargs,
 ) -> DjangoMatplotlibWrapper:
     """This functions tries to mimic the behavior of
     matplotlib.pyplot.subplots but return a DjangoMatplotlibWrapper instead
@@ -193,5 +193,8 @@ def subplots(
     """
     fig, axes = plt.subplots(*args, **kwargs)
     return DjangoMatplotlibWrapper(
-        plot_format=plot_format, template_engine=template_engine,
-        fig=fig, axes=axes)
+        plot_format=plot_format,
+        template_engine=template_engine,
+        fig=fig,
+        axes=axes,
+    )

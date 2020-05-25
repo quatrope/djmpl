@@ -5,11 +5,9 @@
 # License: BSD-3-Clause
 #   Full Text: https://github.com/quatrope/djmpl/blob/master/LICENSE
 
-
 # =============================================================================
 # DOCS
 # =============================================================================
-
 """Tests for django_matplotlib.core
 
 """
@@ -29,19 +27,17 @@ from pyquery import PyQuery as pq
 
 import pytest
 
-
 # =============================================================================
 # TESTS
 # =============================================================================
 
+
 @pytest.mark.parametrize(
     "engine, safe_type",
-    [("django", SafeString), ("jinja2", jinja2.Markup), ("str", str)]
+    [("django", SafeString), ("jinja2", jinja2.Markup), ("str", str)],
 )
 def test_png(engine, safe_type):
-    plot = djmpl.subplots(
-        plot_format="png",
-        template_engine=engine)
+    plot = djmpl.subplots(plot_format="png", template_engine=engine)
     html = plot.to_html()
     assert isinstance(html, safe_type)
 
@@ -62,12 +58,10 @@ def test_png(engine, safe_type):
 
 @pytest.mark.parametrize(
     "engine, safe_type",
-    [("django", SafeString), ("jinja2", jinja2.Markup), ("str", str)]
+    [("django", SafeString), ("jinja2", jinja2.Markup), ("str", str)],
 )
 def test_svg(engine, safe_type):
-    plot = djmpl.subplots(
-        plot_format="svg",
-        template_engine=engine)
+    plot = djmpl.subplots(plot_format="svg", template_engine=engine)
     html = plot.to_html()
     assert isinstance(html, safe_type)
 
@@ -87,11 +81,10 @@ def test_svg(engine, safe_type):
 
 @pytest.mark.parametrize(
     "engine, safe_type",
-    [("django", SafeString), ("jinja2", jinja2.Markup), ("str", str)]
+    [("django", SafeString), ("jinja2", jinja2.Markup), ("str", str)],
 )
 def test_mpld3(engine, safe_type):
-    plot = djmpl.subplots(
-        plot_format="mpld3", template_engine=engine)
+    plot = djmpl.subplots(plot_format="mpld3", template_engine=engine)
     html = plot.to_html()
     assert isinstance(html, safe_type)
 
@@ -111,7 +104,8 @@ def test_mpld3(engine, safe_type):
 
 @pytest.mark.parametrize("fmt", core.AVAILABLE_FORMATS)
 @pytest.mark.parametrize(
-    "engine", list(core.TEMPLATES_FORMATERS) + list(core.TEMPLATE_ALIAS))
+    "engine", list(core.TEMPLATES_FORMATERS) + list(core.TEMPLATE_ALIAS)
+)
 def test_valid_engine_and_format(fmt, engine):
     plt = djmpl.subplots(plot_format=fmt, template_engine=engine)
     assert plt.plot_format == fmt
@@ -119,7 +113,8 @@ def test_valid_engine_and_format(fmt, engine):
 
 
 @pytest.mark.parametrize(
-    "engine", list(core.TEMPLATES_FORMATERS) + list(core.TEMPLATE_ALIAS))
+    "engine", list(core.TEMPLATES_FORMATERS) + list(core.TEMPLATE_ALIAS)
+)
 def test_invalid_and_format(engine):
     with pytest.raises(ValueError):
         djmpl.subplots(plot_format="%NOT-EXISTS%", template_engine=engine)

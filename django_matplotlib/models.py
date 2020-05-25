@@ -5,17 +5,14 @@
 # License: BSD-3-Clause
 #   Full Text: https://github.com/quatrope/djmpl/blob/master/LICENSE
 
-
 # =============================================================================
 # DOCS
 # =============================================================================
-
 """Models utilities to integrate matplolib plots into django models
 
 """
 
 __all__ = ["MatplotlibManager"]
-
 
 # =============================================================================
 # IMPORTS
@@ -30,8 +27,8 @@ from .core import subplots
 # MANAGER
 # =============================================================================
 
-class MatplotlibManager(models.Manager):
 
+class MatplotlibManager(models.Manager):
     def get_draw_methods(self):
         draw_methods = self.draw_methods or ["draw_plot"]
         methods = [getattr(self, m) for m in draw_methods]
