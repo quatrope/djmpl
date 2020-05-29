@@ -12,7 +12,7 @@
 
 """
 
-__all__ = ["MultiPlotMixin"]
+__all__ = ["MultiPlotMixin", "PlotMixin", "MultiPlotView", "PlotView"]
 
 # =============================================================================
 # IMPORTS
@@ -53,7 +53,7 @@ class MultiPlotMixin:
     tight_layout = False
 
     #: The plot methods must match whit this regex
-    plot_method_regex = r"$plot_"
+    plot_method_regex = r"^plot_"
 
     def get_subplots_kwargs(self):
         """Retrieve the parameters for the ``matplotlib.pyplot.subplots`` or
@@ -165,13 +165,34 @@ class MultiPlotMixin:
         return context
 
 
+class PlotMixin(MultiPlotMixin):
+
+    #: The name of the plots inside the templates
+    context_plot_name = "plot"
+
+    #: The plot methods must match whit this regex
+    plot_method_regex = r"^plot$"
+
+    def get_context_data(self, **kwargs):
+        """Overridden version of `MultiPlotMixin` to inject the
+        plot into the template's context.
+        """
+        context = super().get_context_data(**kwargs)
+
+        context_plot_name = self.get_context_plot_name()
+        context[context_plot_name] = context.pop(context_plot_name)[0]
+
+        return context
+
+
 # =============================================================================
-# TE VIEWS
+# THE VIEWS
 # =============================================================================
 
 
-class MultiPlotlibView(MultiPlotMixin, TemplateView):
+class MultiPlotView(MultiPlotMixin, TemplateView):
     pass
 
 
-# class PlotView()
+class PlotView(PlotMixin, TemplateView):
+    pass

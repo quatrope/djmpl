@@ -119,9 +119,9 @@ def test_mpld3(engine, safe_type):
 @pytest.mark.parametrize("fmt", settings.AVAILABLE_FORMATS)
 @pytest.mark.parametrize("engine", ALL_ENGINE_NAMES)
 def test_valid_engine_and_format(fmt, engine):
-    plt = djmpl.subplots(plot_format=fmt, template_engine=engine)
-    assert plt.plot_format == fmt
-    assert plt.template_engine == core.template_by_alias(engine)
+    plot = djmpl.subplots(plot_format=fmt, template_engine=engine)
+    assert plot.plot_format == fmt
+    assert plot.template_engine == core.template_by_alias(engine)
 
 
 @pytest.mark.parametrize("engine", ALL_ENGINE_NAMES)

@@ -48,7 +48,7 @@ commands =
 [testenv:docstyle]
 deps = pydocstyle
 commands =
-    pydocstyle django_matplotlib --convention=numpy
+    pydocstyle django_matplotlib/* --convention=numpy
 
 [testenv:style]
 skip_install = True
