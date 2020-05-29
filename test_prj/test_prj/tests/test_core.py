@@ -23,6 +23,8 @@ from django_matplotlib import core, settings
 
 import jinja2
 
+import matplotlib.pyplot as plt
+
 from pyquery import PyQuery as pq
 
 import pytest
@@ -36,6 +38,8 @@ ALL_ENGINE_NAMES = list(settings.TEMPLATES_FORMATERS) + list(
     settings.TEMPLATE_ALIAS
 )
 
+
+plt.rcParams.update({"figure.max_open_warning": 0})
 
 # =============================================================================
 # TESTS

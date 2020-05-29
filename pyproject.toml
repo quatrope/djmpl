@@ -32,7 +32,7 @@ flake8-bandit = ["-S101"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = docstyle style, py37, py38
+envlist = docstyle, style, py37, py38
 
 [testenv]
 deps =
