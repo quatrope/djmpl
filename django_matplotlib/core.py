@@ -15,6 +15,7 @@ django templates.
 
 __all__ = ["EngineNotSupported", "subplots"]
 
+
 # =============================================================================
 # IMPORTS
 # =============================================================================
@@ -24,50 +25,12 @@ import io
 
 import attr
 
-from django.conf import settings
-from django.utils.safestring import mark_safe
-
-import jinja2
-
 import matplotlib.pyplot as plt
 
 import mpld3
 
-# =============================================================================
-# CONSTANTS
-# =============================================================================
+from . import settings
 
-#: List of available plot formats.
-AVAILABLE_FORMATS: list = ["mpld3", "svg", "png"]
-
-#: Default plot format. This can be changed with a ``DJMPL``` setting variable.
-DJMPL_FORMAT: str = getattr(settings, "DJMPL_FORMAT", AVAILABLE_FORMATS[0])
-
-#: The first template engine configured in ``settings.template```
-DEFAULT_TEMPLATE_ENGINE = settings.TEMPLATES[0]["BACKEND"]
-
-#: Map the template engine name to a function that make "safe" to render
-#: the image into the final HTML.
-TEMPLATES_FORMATERS = {
-    "django.template.backends.django.DjangoTemplates": mark_safe,
-    "django.template.backends.jinja2.Jinja2": jinja2.Markup,
-    "str": str,
-}
-
-#: Map the template engine name to a function that make "safe" to render
-#: the image into the final HTML.
-TEMPLATE_ALIAS = {
-    "django": "django.template.backends.django.DjangoTemplates",
-    "jinja2": "django.template.backends.jinja2.Jinja2",
-    "str": "str",
-}
-
-#: Default template engine for render the plots. By default uses the
-#: same as the default entine in ``settings.TEMPLATES```, this can
-#: be changed by ``settings.DJMPL_TEMPLATE_ENGINE``` variable.
-DJMPL_TEMPLATE_ENGINE: str = getattr(
-    settings, "DJMPL_TEMPLATE_ENGINE", DEFAULT_TEMPLATE_ENGINE
-)
 
 # =============================================================================
 # EXCEPTIONS
@@ -75,7 +38,7 @@ DJMPL_TEMPLATE_ENGINE: str = getattr(
 
 
 class EngineNotSupported(ValueError):
-    """The engine is not suported for django-matplotlib"""
+    """The engine is not supported for django-matplotlib"""
 
 
 # =============================================================================
@@ -105,11 +68,11 @@ class DjangoMatplotlibWrapper:
     fig = attr.ib()
     axes = attr.ib()
     plot_format: str = attr.ib(
-        validator=attr.validators.in_(AVAILABLE_FORMATS)
+        validator=attr.validators.in_(settings.AVAILABLE_FORMATS)
     )
     template_engine = attr.ib(
         converter=lambda x: template_by_alias(x),
-        validator=attr.validators.in_(TEMPLATES_FORMATERS),
+        validator=attr.validators.in_(settings.TEMPLATES_FORMATERS),
     )
 
     # PNG
@@ -139,7 +102,7 @@ class DjangoMatplotlibWrapper:
         return f"<div class='djmpl djmpl-mpld3'>{html}</div>"
 
     def safe(self, img) -> object:
-        formater = TEMPLATES_FORMATERS[self.template_engine]
+        formater = settings.TEMPLATES_FORMATERS[self.template_engine]
         return formater(img)
 
     def html_str(self) -> str:
@@ -169,18 +132,17 @@ def template_by_alias(name_or_alias: str) -> str:
     If the name is not found the same name_or_alias is returned.
 
     """
-    if name_or_alias in TEMPLATES_FORMATERS:
+    if name_or_alias in settings.TEMPLATES_FORMATERS:
         return name_or_alias
     try:
-        return TEMPLATE_ALIAS[name_or_alias.lower()]
+        return settings.TEMPLATE_ALIAS[name_or_alias.lower()]
     except KeyError as err:
         raise EngineNotSupported from err
 
 
 def subplots(
-    plot_format: str = DJMPL_FORMAT,
-    template_engine: str = DJMPL_TEMPLATE_ENGINE,
-    *args,
+    plot_format: str = settings.DJMPL_FORMAT,
+    template_engine: str = settings.DJMPL_TEMPLATE_ENGINE,
     **kwargs,
 ) -> DjangoMatplotlibWrapper:
     """This functions tries to mimic the behavior of
@@ -191,7 +153,9 @@ def subplots(
     in the HTML page.
 
     """
-    fig, axes = plt.subplots(*args, **kwargs)
+    fig = plt.figure()
+
+    fig, axes = plt.subplots(**kwargs)
     return DjangoMatplotlibWrapper(
         plot_format=plot_format,
         template_engine=template_engine,

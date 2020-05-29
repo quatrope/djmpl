@@ -32,7 +32,7 @@ flake8-bandit = ["-S101"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = style, py37, py38
+envlist = docstyle style, py37, py38
 
 [testenv]
 deps =
@@ -45,6 +45,10 @@ changedir = test_prj
 commands =
     pytest --ds "test_prj.settings" -v {posargs}
 
+[testenv:docstyle]
+deps = pydocstyle
+commands =
+    pydocstyle django_matplotlib --convention=numpy
 
 [testenv:style]
 skip_install = True

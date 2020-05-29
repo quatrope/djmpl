@@ -19,13 +19,23 @@
 from django.utils.safestring import SafeString
 
 import django_matplotlib as djmpl
-from django_matplotlib import core
+from django_matplotlib import core, settings
 
 import jinja2
 
 from pyquery import PyQuery as pq
 
 import pytest
+
+
+# =============================================================================
+# CONSTANTS
+# =============================================================================
+
+ALL_ENGINE_NAMES = list(settings.TEMPLATES_FORMATERS) + list(
+    settings.TEMPLATE_ALIAS
+)
+
 
 # =============================================================================
 # TESTS
@@ -102,25 +112,21 @@ def test_mpld3(engine, safe_type):
     assert img.tag == "script"
 
 
-@pytest.mark.parametrize("fmt", core.AVAILABLE_FORMATS)
-@pytest.mark.parametrize(
-    "engine", list(core.TEMPLATES_FORMATERS) + list(core.TEMPLATE_ALIAS)
-)
+@pytest.mark.parametrize("fmt", settings.AVAILABLE_FORMATS)
+@pytest.mark.parametrize("engine", ALL_ENGINE_NAMES)
 def test_valid_engine_and_format(fmt, engine):
     plt = djmpl.subplots(plot_format=fmt, template_engine=engine)
     assert plt.plot_format == fmt
     assert plt.template_engine == core.template_by_alias(engine)
 
 
-@pytest.mark.parametrize(
-    "engine", list(core.TEMPLATES_FORMATERS) + list(core.TEMPLATE_ALIAS)
-)
+@pytest.mark.parametrize("engine", ALL_ENGINE_NAMES)
 def test_invalid_and_format(engine):
     with pytest.raises(ValueError):
         djmpl.subplots(plot_format="%NOT-EXISTS%", template_engine=engine)
 
 
-@pytest.mark.parametrize("fmt", core.AVAILABLE_FORMATS)
+@pytest.mark.parametrize("fmt", settings.AVAILABLE_FORMATS)
 def test_invalid_engine(fmt):
     with pytest.raises(core.EngineNotSupported):
         djmpl.subplots(plot_format=fmt, template_engine="%NOT-EXISTS%")
