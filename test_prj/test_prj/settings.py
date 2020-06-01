@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # here we add the library
-    "django_matplotlib",
+    "test_prj",
 ]
 
 MIDDLEWARE = [

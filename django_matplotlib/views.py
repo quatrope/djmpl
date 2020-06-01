@@ -21,7 +21,7 @@ __all__ = ["MultiPlotMixin", "PlotMixin", "MultiPlotView", "PlotView"]
 import re
 
 from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.base import TemplateView
+from django.views.generic.list import ListView
 
 from . import core, settings
 
@@ -54,6 +54,9 @@ class MultiPlotMixin:
 
     #: The plot methods must match whit this regex
     plot_method_regex = r"^plot_"
+
+    #: Data used to populate the plot.
+    plot_data = None
 
     def get_subplots_kwargs(self):
         """Retrieve the parameters for the ``matplotlib.pyplot.subplots`` or
@@ -88,7 +91,7 @@ class MultiPlotMixin:
         """
         return self.template_engine
 
-    def get_draw_methods(self):
+    def get_plot_methods(self):
         """Retrieve all the method in-charge of plot the figures.
 
         This method iterates over all the contents of the class and
@@ -98,7 +101,7 @@ class MultiPlotMixin:
         """
         cls = type(self)
         methods = [
-            method
+            getattr(self, method_name)
             for method_name, method in vars(cls).items()
             if callable(method)
             and re.match(self.plot_method_regex, method_name)
@@ -114,8 +117,25 @@ class MultiPlotMixin:
 
         return self.context_plot_name
 
+    def get_plot_data(self):
+        """
+        Return the plot data that should be used to populate the axis.
+        """
+        if self.plot_data is not None:
+            return self.plot_data
+        elif hasattr(self, "object_list"):
+            return self.object_list
+        elif hasattr(self, "get_queryset"):
+            return self.get_queryset()
+
+        cls = type(self).__name__
+        raise ImproperlyConfigured(
+            "Plot data was not specified. Define "
+            f"'{cls}.plot_data', '{cls}.object_list' or '{cls}.get_queryset()'"
+        )
+
     def get_plot_context(self):
-        "Returns a dictionary to be passed to all the draw_methods"
+        "Returns a dictionary to be passed to all the plots_methods"
         return {}
 
     def get_context_data(self, **kwargs):
@@ -127,6 +147,9 @@ class MultiPlotMixin:
         # inject the context info into the kwargs
         plot_context = self.get_plot_context()
         kwargs.update(plot_context)
+
+        # retrive the data for the plot
+        data = self.get_plot_data()
 
         # get the subplots_kwargs
         subplot_kwargs = self.get_subplots_kwargs()
@@ -148,7 +171,7 @@ class MultiPlotMixin:
             )
 
             fig, ax = plot.figaxes()
-            dm(fig=fig, ax=ax, **kwargs)
+            dm(data=data, fig=fig, ax=ax, **kwargs)
 
             if tight_layout:
                 fig.tight_layout()
@@ -190,9 +213,15 @@ class PlotMixin(MultiPlotMixin):
 # =============================================================================
 
 
-class MultiPlotView(MultiPlotMixin, TemplateView):
-    pass
+class MultiPlotView(MultiPlotMixin, ListView):
+    """
+    Generic view that renders a template and passes in a `plots` instances.
+    Mixes ``.MultiPlotMixin`` with ``django.views.generic.list.ListView``.
+    """
 
 
-class PlotView(PlotMixin, TemplateView):
-    pass
+class PlotView(PlotMixin, ListView):
+    """
+    Generic view that renders a template and passes in a `plot` instance.
+    Mixes ``.PlotMixin`` with ``django.views.generic.list.ListView``.
+    """

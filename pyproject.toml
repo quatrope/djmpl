@@ -50,6 +50,16 @@ deps = pydocstyle
 commands =
     pydocstyle django_matplotlib/* --convention=numpy
 
+[testenv:coverage]
+deps =
+    coverage
+    pytest-cov
+commands =
+    - coverage erase
+    pytest --ds "test_prj.settings" --cov=django_matplotlib --cov-append --cov-report=
+    coverage report --fail-under=80 -m
+
+
 [testenv:style]
 skip_install = True
 usedevelop = False
